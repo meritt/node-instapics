@@ -1,6 +1,6 @@
 {
     "name": "instapics"
-  , "version": "0.0.1"
+  , "version": "0.0.2"
   , "homepage": "http://github.com/meritt/node-instapics"
   , "author": "Alexey Simonenko <alexey@simonenko.su>"
   , "description": "Wrapper for the Instagram API"
