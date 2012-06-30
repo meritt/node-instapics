@@ -45,7 +45,7 @@ class Instapics
 
     xhr params, (error, request, body) ->
       body  = if body then JSON.parse body else {}
-      error = body.meta if body.meta?.code isnt 200
+      error = body.meta if body.meta and body.meta.code isnt 200
       data  = if body.data? then body.data else null
 
       fn.call self, error, data
