@@ -1,5 +1,5 @@
 ###
-  node-instapics 0.0.1
+  node-instapics
   (c) 2012 Alexey Simonenko, Serenity LLC.
 ###
 
@@ -44,8 +44,8 @@ class Instapics
     params = url: "#{apihost}/#{version}#{self.scheme}?access_token=#{self.options.token}#{query}"
 
     xhr params, (error, request, body) ->
-      body  = JSON.parse body
-      error = body.meta if body.meta.code isnt 200
+      body  = if body then JSON.parse body else {}
+      error = body.meta if body.meta?.code isnt 200
       data  = if body.data? then body.data else null
 
       fn.call self, error, data
