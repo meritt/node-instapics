@@ -1,6 +1,6 @@
 {
     "name": "instapics"
-  , "version": "0.1.1"
+  , "version": "0.1.2"
   , "description": "Wrapper for the Instagram API"
   , "keywords": ["photo", "instagram", "api", "wrapper"]
   , "author": "Alexey Simonenko <alexey@simonenko.su>"
