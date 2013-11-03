@@ -30,13 +30,15 @@
 
       </header>
       <section>
-        <h1>Instapics</h1>
+        <h1>
+<a name="instapics" class="anchor" href="#instapics"><span class="octicon octicon-link"></span></a>Instapics</h1>
 
 <p>A Node.JS wrapper for <a href="http://instagram.com/developer/">Instagram API</a>.</p>
 
-<h2>How to use with JavaScript</h2>
+<h2>
+<a name="how-to-use-with-javascript" class="anchor" href="#how-to-use-with-javascript"><span class="octicon octicon-link"></span></a>How to use with JavaScript</h2>
 
-<div class="highlight"><pre><span class="kd">var</span> <span class="nx">instapics</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'instapics'</span><span class="p">);</span>
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">instapics</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'instapics'</span><span class="p">);</span>
 
 <span class="kd">var</span> <span class="nx">pics</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">instapics</span><span class="p">({</span><span class="nx">token</span><span class="o">:</span> <span class="s1">'OAuth2 access_token'</span><span class="p">});</span>
 
@@ -49,9 +51,10 @@
 <span class="p">});</span>
 </pre></div>
 
-<h2>Or with CoffeeScript</h2>
+<h2>
+<a name="or-with-coffeescript" class="anchor" href="#or-with-coffeescript"><span class="octicon octicon-link"></span></a>Or with CoffeeScript</h2>
 
-<div class="highlight"><pre><span class="nv">instapics = </span><span class="nx">require</span> <span class="s">'instapics'</span>
+<div class="highlight highlight-coffeescript"><pre><span class="nv">instapics = </span><span class="nx">require</span> <span class="s">'instapics'</span>
 
 <span class="nv">pics = </span><span class="k">new</span> <span class="nx">instapics</span> <span class="nv">token: </span><span class="s">'OAuth2 access_token'</span>
 
@@ -60,12 +63,14 @@
   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">data</span>
 </pre></div>
 
-<hr><h2>Install with NPM</h2>
+<hr><h2>
+<a name="install-with-npm" class="anchor" href="#install-with-npm"><span class="octicon octicon-link"></span></a>Install with NPM</h2>
 
 <pre><code>npm install instapics
 </code></pre>
 
-<h2>How to retrieve Instagram OAuth2 access_token</h2>
+<h2>
+<a name="how-to-retrieve-instagram-oauth2-access_token" class="anchor" href="#how-to-retrieve-instagram-oauth2-access_token"><span class="octicon octicon-link"></span></a>How to retrieve Instagram OAuth2 access_token</h2>
 
 <p>Grab latest source code and install all dev dependencies</p>
 
@@ -77,19 +82,24 @@
 <pre><code>coffee examples/get-access-token.coffee
 </code></pre>
 
-<h2>API</h2>
+<h2>
+<a name="api" class="anchor" href="#api"><span class="octicon octicon-link"></span></a>API</h2>
 
 <ul>
-<li>info (*user id*, <em>callback</em>)</li>
-<li>recent (*user id*, <em>params</em>, <em>callback</em>)</li>
-<li>feed (*params*, <em>callback</em>)</li>
-</ul><h2>Author</h2>
+<li>info (<em>user id</em>, <em>callback</em>)</li>
+<li>recent (<em>user id</em>, <em>params</em>, <em>callback</em>)</li>
+<li>feed (<em>params</em>, <em>callback</em>)</li>
+</ul><h2>
+<a name="author" class="anchor" href="#author"><span class="octicon octicon-link"></span></a>Author</h2>
 
 <ul>
 <li>
 <a href="mailto:alexey@simonenko.su">Alexey Simonenko</a>, <a href="http://simonenko.su">simonenko.su</a>
 </li>
-</ul>
+</ul><hr><h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>The MIT License, see the included <code>license.md</code> file.</p>
       </section>
       <footer>
         <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
