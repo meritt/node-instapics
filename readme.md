@@ -1,9 +1,16 @@
-# Instapics
+# instapics
+
+[![NPM version](https://badge.fury.io/js/instapics.png)](http://badge.fury.io/js/instapics) [![Dependency Status](https://david-dm.org/meritt/node-instapics.png)](https://david-dm.org/meritt/node-instapics)
 
 A Node.JS wrapper for [Instagram API](http://instagram.com/developer/).
 
-How to use with JavaScript
---------------------------
+## Installation
+
+```
+$ npm install instapics
+```
+
+## Examples
 
 ```javascript
 var instapics = require('instapics');
@@ -19,9 +26,6 @@ pics.feed({count: 5}, function(error, data) {
 });
 ```
 
-Or with CoffeeScript
---------------------
-
 ```coffeescript
 instapics = require 'instapics'
 
@@ -32,37 +36,29 @@ pics.feed count: 5, (error, data) ->
   console.log data
 ```
 
-----------------
-
-Install with NPM
-----------------
-
-	npm install instapics
-
-How to retrieve Instagram OAuth2 access_token
----------------------------------------------
+## How to retrieve instagram OAuth2 access_token
 
 Grab latest source code and install all dev dependencies
 
-	npm link
+```
+$ npm link
+```
 
 Change your host, client id, client secret in [examples/get-access-token.coffee](http://github.com/meritt/node-instapics/blob/master/examples/get-access-token.coffee) and after that run [examples/get-access-token.coffee](http://github.com/meritt/node-instapics/blob/master/examples/get-access-token.coffee)
 
-	coffee examples/get-access-token.coffee
+```
+$ coffee examples/get-access-token.coffee
+```
 
-API
----
+## API
 
-* info (*user id*, *callback*)
-* recent (*user id*, *params*, *callback*)
-* feed (*params*, *callback*)
+* info (user_id, callback)
+* recent (user_id, params, callback)
+* feed (params, callback)
 
-Author
-------
+## Author
 
 * [Alexey Simonenko](mailto:alexey@simonenko.su), [simonenko.su](http://simonenko.su)
-
----
 
 ## License
 
