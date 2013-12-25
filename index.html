@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>node-instapics by meritt</title>
+    <title>instapics by meritt</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
@@ -16,8 +16,8 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1 class="header">node-instapics</h1>
-        <p class="header">A Node.JS wrapper for the Instagram API</p>
+        <h1 class="header">instapics</h1>
+        <p class="header">A node.js wrapper for the Instagram</p>
 
         <ul>
           <li class="download"><a class="buttons" href="https://github.com/meritt/node-instapics/zipball/master">Download ZIP</a></li>
@@ -30,65 +30,63 @@
 
       </header>
       <section>
-        <h1>
-<a name="instapics" class="anchor" href="#instapics"><span class="octicon octicon-link"></span></a>Instapics</h1>
+        <p><a href="http://badge.fury.io/js/instapics"><img src="https://badge.fury.io/js/instapics.png" alt="NPM version"></a> <a href="https://david-dm.org/meritt/node-instapics"><img src="https://david-dm.org/meritt/node-instapics.png" alt="Dependency Status"></a></p>
 
-<p>A Node.JS wrapper for <a href="http://instagram.com/developer/">Instagram API</a>.</p>
+<p>A node.js wrapper for <a href="http://instagram.com/developer/endpoints/users/">Instagram API</a>.</p>
 
 <h2>
-<a name="how-to-use-with-javascript" class="anchor" href="#how-to-use-with-javascript"><span class="octicon octicon-link"></span></a>How to use with JavaScript</h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
 
-<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">instapics</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'instapics'</span><span class="p">);</span>
+<pre><code>$ npm install instapics
+</code></pre>
 
-<span class="kd">var</span> <span class="nx">pics</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">instapics</span><span class="p">({</span><span class="nx">token</span><span class="o">:</span> <span class="s1">'OAuth2 access_token'</span><span class="p">});</span>
+<h2>
+<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h2>
+
+<div class="highlight highlight-js"><pre><span class="kd">var</span> <span class="nx">Instapics</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'instapics'</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">pics</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Instapics</span><span class="p">({</span>
+  <span class="nx">token</span><span class="o">:</span> <span class="s1">'OAuth2 access_token'</span>
+<span class="p">});</span>
 
 <span class="nx">pics</span><span class="p">.</span><span class="nx">feed</span><span class="p">({</span><span class="nx">count</span><span class="o">:</span> <span class="mi">5</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">error</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
   <span class="k">if</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
   <span class="p">}</span>
 
-  <span class="k">return</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
 <span class="p">});</span>
 </pre></div>
 
-<h2>
-<a name="or-with-coffeescript" class="anchor" href="#or-with-coffeescript"><span class="octicon octicon-link"></span></a>Or with CoffeeScript</h2>
+<div class="highlight highlight-coffeescript"><pre><span class="nv">Instapics = </span><span class="nx">require</span> <span class="s">'instapics'</span>
 
-<div class="highlight highlight-coffeescript"><pre><span class="nv">instapics = </span><span class="nx">require</span> <span class="s">'instapics'</span>
-
-<span class="nv">pics = </span><span class="k">new</span> <span class="nx">instapics</span> <span class="nv">token: </span><span class="s">'OAuth2 access_token'</span>
+<span class="nv">pics = </span><span class="k">new</span> <span class="nx">Instapics</span> <span class="nv">token: </span><span class="s">'OAuth2 access_token'</span>
 
 <span class="nx">pics</span><span class="p">.</span><span class="nx">feed</span> <span class="nv">count: </span><span class="mi">5</span><span class="p">,</span> <span class="nf">(error, data) -&gt;</span>
   <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="nx">error</span> <span class="k">if</span> <span class="nx">error</span>
   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">data</span>
 </pre></div>
 
-<hr><h2>
-<a name="install-with-npm" class="anchor" href="#install-with-npm"><span class="octicon octicon-link"></span></a>Install with NPM</h2>
-
-<pre><code>npm install instapics
-</code></pre>
-
 <h2>
-<a name="how-to-retrieve-instagram-oauth2-access_token" class="anchor" href="#how-to-retrieve-instagram-oauth2-access_token"><span class="octicon octicon-link"></span></a>How to retrieve Instagram OAuth2 access_token</h2>
+<a name="how-to-retrieve-instagram-oauth2-access_token" class="anchor" href="#how-to-retrieve-instagram-oauth2-access_token"><span class="octicon octicon-link"></span></a>How to retrieve instagram OAuth2 access_token</h2>
 
 <p>Grab latest source code and install all dev dependencies</p>
 
-<pre><code>npm link
+<pre><code>$ npm link
 </code></pre>
 
 <p>Change your host, client id, client secret in <a href="http://github.com/meritt/node-instapics/blob/master/examples/get-access-token.coffee">examples/get-access-token.coffee</a> and after that run <a href="http://github.com/meritt/node-instapics/blob/master/examples/get-access-token.coffee">examples/get-access-token.coffee</a></p>
 
-<pre><code>coffee examples/get-access-token.coffee
+<pre><code>$ coffee examples/get-access-token.coffee
 </code></pre>
 
 <h2>
 <a name="api" class="anchor" href="#api"><span class="octicon octicon-link"></span></a>API</h2>
 
 <ul>
-<li>info (<em>user id</em>, <em>callback</em>)</li>
-<li>recent (<em>user id</em>, <em>params</em>, <em>callback</em>)</li>
-<li>feed (<em>params</em>, <em>callback</em>)</li>
+<li>info (user_id, callback)</li>
+<li>recent (user_id[, params], callback)</li>
+<li>feed ([params, ]callback)</li>
 </ul><h2>
 <a name="author" class="anchor" href="#author"><span class="octicon octicon-link"></span></a>Author</h2>
 
@@ -96,13 +94,15 @@
 <li>
 <a href="mailto:alexey@simonenko.su">Alexey Simonenko</a>, <a href="http://simonenko.su">simonenko.su</a>
 </li>
-</ul><hr><h2>
+</ul><h2>
 <a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
 
 <p>The MIT License, see the included <code>license.md</code> file.</p>
+
+<p><a href="https://bitdeli.com/free" title="Bitdeli Badge"><img src="https://d2weczhvl823v0.cloudfront.net/meritt/node-instapics/trend.png" alt="Bitdeli Badge"></a></p>
       </section>
       <footer>
-        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+        <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
       </footer>
     </div>
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->
