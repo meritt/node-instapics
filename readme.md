@@ -2,7 +2,7 @@
 
 [![NPM version](https://badge.fury.io/js/instapics.png)](http://badge.fury.io/js/instapics) [![Dependency Status](https://david-dm.org/meritt/node-instapics.png)](https://david-dm.org/meritt/node-instapics)
 
-A Node.JS wrapper for [Instagram API](http://instagram.com/developer/).
+A node.js wrapper for [Instagram API](http://instagram.com/developer/endpoints/users/).
 
 ## Installation
 
@@ -12,24 +12,26 @@ $ npm install instapics
 
 ## Examples
 
-```javascript
-var instapics = require('instapics');
+```js
+var Instapics = require('instapics');
 
-var pics = new instapics({token: 'OAuth2 access_token'});
+var pics = new Instapics({
+  token: 'OAuth2 access_token'
+});
 
 pics.feed({count: 5}, function(error, data) {
   if (error) {
     throw new Error(error);
   }
 
-  return console.log(data);
+  console.log(data);
 });
 ```
 
 ```coffeescript
-instapics = require 'instapics'
+Instapics = require 'instapics'
 
-pics = new instapics token: 'OAuth2 access_token'
+pics = new Instapics token: 'OAuth2 access_token'
 
 pics.feed count: 5, (error, data) ->
   throw new Error error if error
@@ -53,8 +55,8 @@ $ coffee examples/get-access-token.coffee
 ## API
 
 * info (user_id, callback)
-* recent (user_id, params, callback)
-* feed (params, callback)
+* recent (user_id[, params], callback)
+* feed ([params, ]callback)
 
 ## Author
 
@@ -63,3 +65,5 @@ $ coffee examples/get-access-token.coffee
 ## License
 
 The MIT License, see the included `license.md` file.
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/meritt/node-instapics/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
