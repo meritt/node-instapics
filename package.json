@@ -1,6 +1,6 @@
 {
     "name": "instapics"
-  , "version": "0.1.3"
+  , "version": "0.1.4"
   , "description": "Wrapper for the Instagram API"
   , "keywords": ["photo", "instagram", "api", "wrapper"]
   , "author": "Alexey Simonenko <alexey@simonenko.su>"
@@ -11,15 +11,16 @@
       , "url": "https://github.com/meritt/node-instapics.git"
     }
   , "engines": {
-      "node": ">=0.8.0 <0.11.0"
+      "node": ">=0.8.0"
     }
   , "dependencies": {
-      "request": "2.27.x"
+      "request": "2.x"
     }
   , "devDependencies": {
-      "coffee-script": "1.6.x"
-    , "everyauth": "0.2.x"
-    , "express": "2.5.x"
-    , "ejs": "0.7.x"
-  }
+        "coffee-script": "1.6.x"
+      , "everyauth": "0.2.x"
+      , "express": "2.5.x"
+      , "ejs": "0.7.x"
+    }
+  , "license": "MIT"
 }
