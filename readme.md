@@ -132,11 +132,11 @@ The Instagram Login API allows roughly 200 requests per hour per user token. `in
 
 MIT. See `LICENSE`.
 
-[npm-image]: https://img.shields.io/npm/v/node-instapics.svg?style=flat
-[npm-url]: https://www.npmjs.com/package/node-instapics
+[npm-image]: https://img.shields.io/npm/v/instapics.svg?style=flat
+[npm-url]: https://www.npmjs.com/package/instapics
 [github-actions-image]: https://github.com/meritt/node-instapics/actions/workflows/ci.yml/badge.svg
 [github-actions-url]: https://github.com/meritt/node-instapics/actions/workflows/ci.yml
 [coveralls-image]: https://coveralls.io/repos/github/meritt/node-instapics/badge.svg?branch=main
 [coveralls-url]: https://coveralls.io/github/meritt/node-instapics?branch=main
-[libraries-image]: https://img.shields.io/librariesio/release/npm/node-instapics.svg?style=flat
-[libraries-url]: https://libraries.io/npm/node-instapics
+[libraries-image]: https://img.shields.io/librariesio/release/npm/instapics.svg?style=flat
+[libraries-url]: https://libraries.io/npm/instapics
