@@ -8,7 +8,7 @@
   "globals": {
     "Temporal": "readonly"
   },
-  "ignorePatterns": ["node_modules/"],
+  "ignorePatterns": ["node_modules/", "coverage/"],
   "categories": {
     "correctness": "error",
     "suspicious": "error",
