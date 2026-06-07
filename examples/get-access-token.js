@@ -6,7 +6,8 @@ import { createServer } from 'node:https';
 
 const APP_ID = process.env.IG_APP_ID;
 const APP_SECRET = process.env.IG_APP_SECRET;
-const REDIRECT_URI = process.env.IG_REDIRECT_URI ?? 'https://localhost:3000/callback';
+const REDIRECT_URI =
+  process.env.IG_REDIRECT_URI ?? 'https://localhost:3000/callback';
 const SCOPE = 'instagram_business_basic';
 
 const TLS_KEY = process.env.IG_TLS_KEY ?? 'localhost-key.pem';
@@ -103,7 +104,9 @@ const server = createServer(loadTls(), async (req, res) => {
     }
 
     if (!code) {
-      throw new Error(oauthError ? `Authorization failed: ${oauthError}` : 'Missing ?code');
+      throw new Error(
+        oauthError ? `Authorization failed: ${oauthError}` : 'Missing ?code'
+      );
     }
 
     expectedState = null;
@@ -114,7 +117,8 @@ const server = createServer(loadTls(), async (req, res) => {
     console.log('\nLong-lived access token:\n', longLived.access_token);
     console.log('Expires in (seconds):', longLived.expires_in);
 
-    res.writeHead(200, { 'content-type': 'text/plain' })
+    res
+      .writeHead(200, { 'content-type': 'text/plain' })
       .end('Token obtained. Check your terminal. You can close this tab.');
   } catch (err) {
     console.error(err);

@@ -1,29 +1,44 @@
 {
-    "name": "instapics"
-  , "version": "0.1.5"
-  , "description": "Wrapper for the Instagram API"
-  , "keywords": ["photo", "instagram", "api", "wrapper"]
-  , "author": "Alexey Simonenko <alexey@simonenko.su>"
-  , "homepage": "http://simonenko.su/projects/node-instapics"
-  , "main": "./lib/instapics"
-  , "repository": {
-        "type": "git"
-      , "url": "https://github.com/meritt/node-instapics.git"
-    }
-  , "engines": {
-      "node": ">=0.10"
-    }
-  , "dependencies": {
-      "request": "2.x"
-    }
-  , "devDependencies": {
-        "coffee-script": "~1.7.1"
-      , "everyauth": "0.2.x"
-      , "express": "2.5.x"
-      , "ejs": "0.7.x"
-    }
-  , "scripts": {
-      "build": "./node_modules/.bin/coffee -c -o lib/ src/"
-    }
-  , "license": "MIT"
+  "name": "instapics",
+  "version": "1.0.0",
+  "description": "Wrapper for the Instagram API",
+  "keywords": [
+    "graph-api",
+    "instagram",
+    "instagram-api",
+    "instagram-login",
+    "media",
+    "photo",
+    "reels"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Alexey Simonenko",
+    "email": "alexey@simonenko.dev",
+    "url": "http://simonenko.xyz"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/meritt/node-instapics.git"
+  },
+  "files": [
+    "lib"
+  ],
+  "type": "module",
+  "exports": "./lib/index.js",
+  "scripts": {
+    "lint": "oxlint",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "test": "node --test test/*.js",
+    "coverage": "mkdir -p coverage && node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/lcov.info test/*.js"
+  },
+  "devDependencies": {
+    "oxfmt": "^0.53.0",
+    "oxlint": "^1.68.0"
+  },
+  "engines": {
+    "node": ">=26.3"
+  },
+  "packageManager": "pnpm@11.5.2"
 }

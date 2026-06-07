@@ -37,10 +37,10 @@ Open the printed URL, authorize, and the token prints to your terminal.
 
 ## Environment variables
 
-| Variable | Description | Default |
-| --- | --- | --- |
-| `IG_APP_ID` | Instagram app ID | required |
-| `IG_APP_SECRET` | Instagram app secret | required |
+| Variable          | Description                                | Default                           |
+| ----------------- | ------------------------------------------ | --------------------------------- |
+| `IG_APP_ID`       | Instagram app ID                           | required                          |
+| `IG_APP_SECRET`   | Instagram app secret                       | required                          |
 | `IG_REDIRECT_URI` | OAuth redirect; must match the app exactly | `https://localhost:3000/callback` |
-| `IG_TLS_CERT` | HTTPS certificate path | `localhost.pem` |
-| `IG_TLS_KEY` | HTTPS private key path | `localhost-key.pem` |
+| `IG_TLS_CERT`     | HTTPS certificate path                     | `localhost.pem`                   |
+| `IG_TLS_KEY`      | HTTPS private key path                     | `localhost-key.pem`               |
