@@ -3,7 +3,12 @@ import { afterEach, mock, test } from 'node:test';
 import { inspect } from 'node:util';
 
 import { InstagramApiError } from '../lib/errors.js';
-import { buildUrl, request, DEFAULT_BASE_URL } from '../lib/request.js';
+import {
+  buildUrl,
+  request,
+  DEFAULT_BASE_URL,
+  MAX_BODY_BYTES
+} from '../lib/request.js';
 import { stubFetch } from './helpers.js';
 
 afterEach(() => mock.restoreAll());
@@ -19,13 +24,14 @@ async function timingOutFetch() {
 }
 
 async function nonJsonFetch() {
-  return {
-    ok: true,
-    status: 200,
-    async json() {
-      throw new SyntaxError('Unexpected token < in JSON');
-    }
-  };
+  return new Response('<html>oops</html>');
+}
+
+function hangingFetch(_url, init) {
+  init.signal.throwIfAborted();
+  return new Promise((_resolve, reject) => {
+    init.signal.addEventListener('abort', () => reject(init.signal.reason));
+  });
 }
 
 async function leakyFetch(url) {
@@ -33,7 +39,7 @@ async function leakyFetch(url) {
 }
 
 test('buildUrl joins base + path and appends params, skipping nullish', () => {
-  const url = buildUrl('https://graph.instagram.com/', '/me/media', {
+  const url = buildUrl('https://graph.instagram.com/', 'me/media', {
     fields: 'id,caption',
     limit: 25,
     after: undefined
@@ -48,7 +54,7 @@ test('buildUrl joins base + path and appends params, skipping nullish', () => {
 });
 
 test('request returns parsed JSON on success and forwards params', async () => {
-  const fetch = stubFetch({ status: 200, body: { data: [{ id: '1' }] } });
+  const fetch = stubFetch({ body: { data: [{ id: '1' }] } });
   const body = await request(DEFAULT_BASE_URL, 'me/media', {
     access_token: 't'
   });
@@ -136,6 +142,123 @@ test('request never leaks the access_token through err.cause or inspect', async 
       assert.ok(err.cause instanceof Error);
       assert.doesNotMatch(String(err.cause.message), /SECRET/);
       assert.doesNotMatch(inspect(err, { depth: null }), /SECRET/);
+      return true;
+    }
+  );
+});
+
+test('request redacts the access_token echoed in an API error message', async () => {
+  stubFetch({
+    status: 400,
+    body: { error: { message: 'Bad url ?access_token=SECRET&x=1' } }
+  });
+  await assert.rejects(
+    () => request(DEFAULT_BASE_URL, 'me', { access_token: 'SECRET' }),
+    (err) => {
+      assert.ok(err instanceof InstagramApiError);
+      assert.doesNotMatch(err.message, /SECRET/);
+      return true;
+    }
+  );
+});
+
+test('request falls back to the HTTP status for a malformed error', async () => {
+  stubFetch({ status: 502, body: { error: 'down' } });
+  await assert.rejects(
+    () => request(DEFAULT_BASE_URL, 'me', {}),
+    (err) => {
+      assert.ok(err instanceof InstagramApiError);
+      assert.equal(err.message, 'HTTP 502');
+      return true;
+    }
+  );
+});
+
+test('request rejects a body over the size ceiling', async () => {
+  mock.method(
+    globalThis,
+    'fetch',
+    async () => new Response('x'.repeat(MAX_BODY_BYTES + 1))
+  );
+  await assert.rejects(
+    () => request(DEFAULT_BASE_URL, 'me', {}),
+    (err) => {
+      assert.ok(err instanceof InstagramApiError);
+      assert.match(err.message, /exceeds/);
+      assert.equal(err.status, 200);
+      return true;
+    }
+  );
+});
+
+test('request parses JSON that starts with a UTF-8 BOM', async () => {
+  mock.method(
+    globalThis,
+    'fetch',
+    async () => new Response(`﻿${JSON.stringify({ id: '1' })}`)
+  );
+  assert.deepEqual(await request(DEFAULT_BASE_URL, 'me', {}), { id: '1' });
+});
+
+test('request rejects JSON that is not an object', async () => {
+  for (const body of [[1, 2], 'text', null]) {
+    stubFetch({ body });
+    await assert.rejects(
+      () => request(DEFAULT_BASE_URL, 'me', {}),
+      (err) => {
+        assert.ok(err instanceof InstagramApiError);
+        assert.match(err.message, /Invalid response shape/);
+        return true;
+      }
+    );
+    mock.restoreAll();
+  }
+});
+
+test('request rethrows the caller abort reason, not an API error', async () => {
+  mock.method(globalThis, 'fetch', hangingFetch);
+  const controller = new AbortController();
+  const reason = new Error('stop');
+  const pending = request(
+    DEFAULT_BASE_URL,
+    'me',
+    {},
+    { signal: controller.signal }
+  );
+  controller.abort(reason);
+  await assert.rejects(pending, (err) => err === reason);
+});
+
+test('request honours an already aborted signal', async () => {
+  const fetch = mock.method(globalThis, 'fetch', hangingFetch);
+  const reason = new Error('already');
+  await assert.rejects(
+    () =>
+      request(
+        DEFAULT_BASE_URL,
+        'me',
+        {},
+        { signal: AbortSignal.abort(reason) }
+      ),
+    (err) => err === reason
+  );
+  assert.equal(fetch.mock.callCount(), 0);
+});
+
+test('request still reports its own timeout as InstagramApiError with a signal', async () => {
+  mock.method(globalThis, 'fetch', hangingFetch);
+  const controller = new AbortController();
+  await assert.rejects(
+    () =>
+      request(
+        DEFAULT_BASE_URL,
+        'me',
+        {},
+        { timeout: 20, signal: controller.signal }
+      ),
+    (err) => {
+      assert.ok(err instanceof InstagramApiError);
+      assert.match(err.message, /timed out after 20ms/);
       return true;
     }
   );

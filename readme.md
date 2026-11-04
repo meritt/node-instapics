@@ -9,7 +9,7 @@ Fetch your own Instagram photos, videos, and Reels normalized to a flat shape. `
 
 ## Requirements
 
-- Node.js ≥ 26.3
+- Node.js ≥ 26.13
 - A **professional** Instagram account and a Meta app with **Instagram Login**
 
 ## Installation
@@ -65,7 +65,7 @@ Every item carries a `thumbnail` image url: the full-size image for photos and a
 //   items           — the rest, as [{ type, url }, ...]
 ```
 
-Missing fields are `null`.
+Missing fields are `null`. So are `url`, `thumbnail`, and `permalink` values that are not `https:` URLs, so a broken or hostile response cannot hand your page a `javascript:` link.
 
 ## Tokens
 
@@ -91,34 +91,38 @@ const { token, expires } = await ig.refresh(); // expires is a Temporal.Instant
 | --------- | ----------------------------- | --------------------------------------- |
 | `token`   | `env.IG_TOKEN`                | Long-lived access token                 |
 | `env`     | `process.env`                 | Object to read `IG_TOKEN` from          |
-| `baseUrl` | `https://graph.instagram.com` | API host                                |
+| `baseUrl` | `https://graph.instagram.com` | API host; must be `https:`              |
 | `timeout` | `30000`                       | Per-request timeout in ms; `0` disables |
 
-Throws if no token resolves from `token` or `env`.
+Throws a `TypeError` if no string token resolves from `token` or `env`, or if `baseUrl` is not an `https:` URL or carries a query or hash.
 
 ### Methods
 
-| Method               | Returns                                      |
-| -------------------- | -------------------------------------------- |
-| `profile()`          | `{ id, username, account, posts }`           |
-| `media(count = 25)`  | latest media of any type                     |
-| `photos(count = 25)` | latest photos (images and albums)            |
-| `videos(count = 25)` | latest feed videos (excludes Reels)          |
-| `reels(count = 25)`  | latest Reels                                 |
-| `item(id)`           | a single media object by numeric id          |
-| `refresh()`          | `{ token, expires }`, and updates the client |
+| Method                     | Returns                                      |
+| -------------------------- | -------------------------------------------- |
+| `profile(opts)`            | `{ id, username, account, posts }`           |
+| `media(count = 25, opts)`  | latest media of any type                     |
+| `photos(count = 25, opts)` | latest photos (images and albums)            |
+| `videos(count = 25, opts)` | latest feed videos (excludes Reels)          |
+| `reels(count = 25, opts)`  | latest Reels                                 |
+| `item(id, opts)`           | a single media object by id                  |
+| `refresh(opts)`            | `{ token, expires }`, and updates the client |
 
 `count` is an integer from `0` to `1000`. `photos`, `videos`, and `reels` scan up to the 2500 most recent posts to fill it, so a rare type may return fewer.
 
-### Errors
+`id` is a string of digits, as the API returns it. A number is accepted only while it is a safe integer: Instagram ids are usually larger, and a rounded id would fetch someone else's post.
 
-A failed request throws `InstagramApiError`, whether from an HTTP error, a network failure, or a timeout:
+`opts` is an optional `{ signal }`. An `AbortSignal` cancels the call, including the pagination in progress:
 
 ```js
-{
-  (message, status, code, type, fbtraceId);
-}
+const media = await ig.media(1000, { signal: AbortSignal.timeout(10_000) });
 ```
+
+### Errors
+
+A failed request throws `InstagramApiError`, whether from an HTTP error, a network failure, the client's own `timeout`, a response over 5 MB, or a response of the wrong shape. It carries `message`, `status`, `code`, `type`, and `fbtraceId`.
+
+Cancelling through your `signal` is not a failure: the call rejects with `signal.reason` as is.
 
 ## Rate limits
 
@@ -126,7 +130,7 @@ The Instagram Login API allows roughly 200 requests per hour per user token. `in
 
 ## Author
 
-- [Alexey Simonenko](https://github.com/meritt)
+[Alexey Simonenko](https://simonenko.xyz)
 
 ## License
 

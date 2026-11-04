@@ -6,52 +6,46 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: read
+permissions: {}
+
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: Test
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
-
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version: ["26.x"]
-        include:
-          - node-version: "26.x"
-            coverage: true
-
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - uses: pnpm/action-setup@v6
-
-      - uses: actions/setup-node@v6
+      - name: Setup
+        uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: pnpm
+          cache: true
+          require-lockfile: true
 
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint --format=github
-      - run: pnpm format:check
+      - name: Lint
+        run: pnpm lint --format=github
 
-      - if: ${{ !matrix.coverage }}
-        run: pnpm test
+      - name: Format
+        run: pnpm format:check
 
-      - name: Coverage
-        if: matrix.coverage
+      - name: Test
         run: pnpm coverage
 
-      - name: Upload coverage to Coveralls
-        if: matrix.coverage
-        uses: coverallsapp/github-action@v2
+      - name: Coverage
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
         with:
           file: coverage/lcov.info
           format: lcov

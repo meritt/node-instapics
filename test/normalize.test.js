@@ -77,6 +77,71 @@ test('normalizes an album: first child for url/thumbnail, rest as items', () => 
   ]);
 });
 
+test('drops urls that are not https', () => {
+  const out = normalizeMedia({
+    id: '1',
+    media_type: 'IMAGE',
+    media_url: 'javascript:alert(1)',
+    permalink: 'http://p/1'
+  });
+  assert.equal(out.url, null);
+  assert.equal(out.thumbnail, null);
+  assert.equal(out.permalink, null);
+
+  const video = normalizeMedia({
+    id: '2',
+    media_type: 'VIDEO',
+    media_url: 'data:video/mp4;base64,AA',
+    thumbnail_url: 'https://t/2.jpg'
+  });
+  assert.equal(video.url, null);
+  assert.equal(video.thumbnail, 'https://t/2.jpg');
+});
+
+test('album tolerates malformed children', () => {
+  const broken = normalizeMedia({
+    id: '10',
+    media_type: 'CAROUSEL_ALBUM',
+    media_url: 'https://img/cover.jpg',
+    children: { data: 'nope' }
+  });
+  assert.equal(broken.url, 'https://img/cover.jpg');
+  assert.equal(broken.thumbnail, 'https://img/cover.jpg');
+  assert.deepEqual(broken.items, []);
+
+  const holes = normalizeMedia({
+    id: '11',
+    media_type: 'CAROUSEL_ALBUM',
+    children: {
+      data: [
+        null,
+        { media_type: 'IMAGE', media_url: 'https://img/a.jpg' },
+        { media_type: 'IMAGE', media_url: 'http://img/b.jpg' }
+      ]
+    }
+  });
+  assert.equal(holes.url, 'https://img/a.jpg');
+  assert.deepEqual(holes.items, [{ type: 'photo', url: null }]);
+
+  const fallback = normalizeMedia({
+    id: '12',
+    media_type: 'CAROUSEL_ALBUM',
+    media_url: 'https://img/cover.jpg',
+    children: {
+      data: [
+        { media_type: 'IMAGE', media_url: 'http://img/a.jpg' },
+        {
+          media_type: 'VIDEO',
+          media_url: 'http://vid/b.mp4',
+          thumbnail_url: 'https://t/b.jpg'
+        }
+      ]
+    }
+  });
+  assert.equal(fallback.url, 'https://img/cover.jpg');
+  assert.deepEqual(fallback.items, [{ type: 'video', url: 'https://t/b.jpg' }]);
+});
+
 test('normalizes the profile', () => {
   const out = normalizeProfile({
     id: '1',
