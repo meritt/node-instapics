@@ -91,10 +91,10 @@ const { token, expires } = await ig.refresh(); // expires is a Temporal.Instant
 | --------- | ----------------------------- | --------------------------------------- |
 | `token`   | `env.IG_TOKEN`                | Long-lived access token                 |
 | `env`     | `process.env`                 | Object to read `IG_TOKEN` from          |
-| `baseUrl` | `https://graph.instagram.com` | API host                                |
+| `baseUrl` | `https://graph.instagram.com` | API host; must be `https:`              |
 | `timeout` | `30000`                       | Per-request timeout in ms; `0` disables |
 
-Throws if no token resolves from `token` or `env`.
+Throws a `TypeError` if no string token resolves from `token` or `env`, or if `baseUrl` is not an `https:` URL or carries a query or hash.
 
 ### Methods
 
@@ -105,10 +105,12 @@ Throws if no token resolves from `token` or `env`.
 | `photos(count = 25)` | latest photos (images and albums)            |
 | `videos(count = 25)` | latest feed videos (excludes Reels)          |
 | `reels(count = 25)`  | latest Reels                                 |
-| `item(id)`           | a single media object by numeric id          |
+| `item(id)`           | a single media object by id                  |
 | `refresh()`          | `{ token, expires }`, and updates the client |
 
 `count` is an integer from `0` to `1000`. `photos`, `videos`, and `reels` scan up to the 2500 most recent posts to fill it, so a rare type may return fewer.
+
+`id` is a string of digits, as the API returns it. A number is accepted only while it is a safe integer: Instagram ids are usually larger, and a rounded id would fetch someone else's post.
 
 ### Errors
 

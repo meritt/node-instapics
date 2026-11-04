@@ -249,3 +249,48 @@ test('refresh() rejects an invalid token response and keeps the old token', asyn
   await ig.profile();
   assert.equal(fetch.calls.at(-1).url.searchParams.get('access_token'), 'OLD');
 });
+
+test('item() accepts a safe integer id', async () => {
+  const fetch = stubFetch({ body: img('42') });
+  const ig = new Instapics({ token: 'T' });
+  await ig.item(42);
+  assert.match(fetch.calls[0].url.pathname, /\/42$/);
+});
+
+test('item() rejects an id that lost precision as a number', async () => {
+  const fetch = stubFetch({ body: img('1') });
+  const ig = new Instapics({ token: 'T' });
+  // eslint-disable-next-line no-loss-of-precision
+  await assert.rejects(() => ig.item(17895695668004551), TypeError);
+  await assert.rejects(() => ig.item(-1), TypeError);
+  await assert.rejects(() => ig.item(1.5), TypeError);
+  assert.equal(fetch.calls.length, 0);
+});
+
+test('constructor requires an https baseUrl', () => {
+  for (const baseUrl of [
+    'http://graph.instagram.com',
+    'graph.instagram.com',
+    'https://proxy.example/?x=1',
+    'https://proxy.example/#x',
+    42
+  ]) {
+    assert.throws(() => new Instapics({ token: 'T', baseUrl }), TypeError);
+  }
+  assert.ok(new Instapics({ token: 'T', baseUrl: 'https://proxy.example' }));
+});
+
+test('constructor accepts a URL object as baseUrl', async () => {
+  const fetch = stubFetch({ body: { id: '1' } });
+  const ig = new Instapics({
+    token: 'T',
+    baseUrl: new URL('https://proxy.example/ig/')
+  });
+  await ig.profile();
+  assert.equal(fetch.calls[0].url.pathname, '/ig/me');
+});
+
+test('constructor rejects a non-string token', () => {
+  assert.throws(() => new Instapics({ token: 123 }), TypeError);
+  assert.throws(() => new Instapics({ env: { IG_TOKEN: {} } }), TypeError);
+});
