@@ -130,7 +130,7 @@ The Instagram Login API allows roughly 200 requests per hour per user token. `in
 
 ## Author
 
-- [Alexey Simonenko](https://github.com/meritt)
+[Alexey Simonenko](https://simonenko.xyz)
 
 ## License
 
