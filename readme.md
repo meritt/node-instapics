@@ -114,13 +114,7 @@ Throws a `TypeError` if no string token resolves from `token` or `env`, or if `b
 
 ### Errors
 
-A failed request throws `InstagramApiError`, whether from an HTTP error, a network failure, or a timeout:
-
-```js
-{
-  (message, status, code, type, fbtraceId);
-}
-```
+A failed request throws `InstagramApiError`, whether from an HTTP error, a network failure, the client's own `timeout`, a response over 5 MB, or a response of the wrong shape. It carries `message`, `status`, `code`, `type`, and `fbtraceId`.
 
 ## Rate limits
 

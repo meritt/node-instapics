@@ -3,7 +3,12 @@ import { afterEach, mock, test } from 'node:test';
 import { inspect } from 'node:util';
 
 import { InstagramApiError } from '../lib/errors.js';
-import { buildUrl, request, DEFAULT_BASE_URL } from '../lib/request.js';
+import {
+  buildUrl,
+  request,
+  DEFAULT_BASE_URL,
+  MAX_BODY_BYTES
+} from '../lib/request.js';
 import { stubFetch } from './helpers.js';
 
 afterEach(() => mock.restoreAll());
@@ -133,4 +138,72 @@ test('request never leaks the access_token through err.cause or inspect', async 
       return true;
     }
   );
+});
+
+test('request redacts the access_token echoed in an API error message', async () => {
+  stubFetch({
+    status: 400,
+    body: { error: { message: 'Bad url ?access_token=SECRET&x=1' } }
+  });
+  await assert.rejects(
+    () => request(DEFAULT_BASE_URL, 'me', { access_token: 'SECRET' }),
+    (err) => {
+      assert.ok(err instanceof InstagramApiError);
+      assert.doesNotMatch(err.message, /SECRET/);
+      return true;
+    }
+  );
+});
+
+test('request falls back to the HTTP status for a malformed error', async () => {
+  stubFetch({ status: 502, body: { error: 'down' } });
+  await assert.rejects(
+    () => request(DEFAULT_BASE_URL, 'me', {}),
+    (err) => {
+      assert.ok(err instanceof InstagramApiError);
+      assert.equal(err.message, 'HTTP 502');
+      return true;
+    }
+  );
+});
+
+test('request rejects a body over the size ceiling', async () => {
+  mock.method(
+    globalThis,
+    'fetch',
+    async () => new Response('x'.repeat(MAX_BODY_BYTES + 1))
+  );
+  await assert.rejects(
+    () => request(DEFAULT_BASE_URL, 'me', {}),
+    (err) => {
+      assert.ok(err instanceof InstagramApiError);
+      assert.match(err.message, /exceeds/);
+      assert.equal(err.status, 200);
+      return true;
+    }
+  );
+});
+
+test('request parses JSON that starts with a UTF-8 BOM', async () => {
+  mock.method(
+    globalThis,
+    'fetch',
+    async () => new Response(`﻿${JSON.stringify({ id: '1' })}`)
+  );
+  assert.deepEqual(await request(DEFAULT_BASE_URL, 'me', {}), { id: '1' });
+});
+
+test('request rejects JSON that is not an object', async () => {
+  for (const body of [[1, 2], 'text', null]) {
+    stubFetch({ body });
+    await assert.rejects(
+      () => request(DEFAULT_BASE_URL, 'me', {}),
+      (err) => {
+        assert.ok(err instanceof InstagramApiError);
+        assert.match(err.message, /Invalid response shape/);
+        return true;
+      }
+    );
+    mock.restoreAll();
+  }
 });

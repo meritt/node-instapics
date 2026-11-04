@@ -250,6 +250,33 @@ test('refresh() rejects an invalid token response and keeps the old token', asyn
   assert.equal(fetch.calls.at(-1).url.searchParams.get('access_token'), 'OLD');
 });
 
+test('refresh() rejects a non-positive or non-integer expires_in', async () => {
+  for (const expires_in of [-1, 0, 1.5, '5184000']) {
+    stubFetch({ body: { access_token: 'NEW', expires_in } });
+    const ig = new Instapics({ token: 'OLD' });
+    await assert.rejects(
+      () => ig.refresh(),
+      (e) => e instanceof InstagramApiError
+    );
+    mock.restoreAll();
+  }
+});
+
+test('refresh() keeps the old token when expires_in is out of range', async () => {
+  const fetch = stubFetch((_url, i) =>
+    i === 0
+      ? { body: { access_token: 'NEW', expires_in: 1e13 } }
+      : { body: { username: 'me' } }
+  );
+  const ig = new Instapics({ token: 'OLD' });
+  await assert.rejects(
+    () => ig.refresh(),
+    (e) => e instanceof InstagramApiError
+  );
+  await ig.profile();
+  assert.equal(fetch.calls.at(-1).url.searchParams.get('access_token'), 'OLD');
+});
+
 test('item() accepts a safe integer id', async () => {
   const fetch = stubFetch({ body: img('42') });
   const ig = new Instapics({ token: 'T' });
@@ -265,6 +292,15 @@ test('item() rejects an id that lost precision as a number', async () => {
   await assert.rejects(() => ig.item(-1), TypeError);
   await assert.rejects(() => ig.item(1.5), TypeError);
   assert.equal(fetch.calls.length, 0);
+});
+
+test('item() rejects a response without a string id', async () => {
+  stubFetch({ body: { media_type: 'IMAGE' } });
+  const ig = new Instapics({ token: 'T' });
+  await assert.rejects(
+    () => ig.item('1'),
+    (e) => e instanceof InstagramApiError
+  );
 });
 
 test('constructor requires an https baseUrl', () => {
@@ -293,4 +329,16 @@ test('constructor accepts a URL object as baseUrl', async () => {
 test('constructor rejects a non-string token', () => {
   assert.throws(() => new Instapics({ token: 123 }), TypeError);
   assert.throws(() => new Instapics({ env: { IG_TOKEN: {} } }), TypeError);
+});
+
+test('media() rejects a page whose data is not a list or holds non-objects', async () => {
+  for (const data of [{}, [null], [{ media_type: 'IMAGE' }]]) {
+    stubFetch({ body: { data, paging: {} } });
+    const ig = new Instapics({ token: 'T' });
+    await assert.rejects(
+      () => ig.media(5),
+      (e) => e instanceof InstagramApiError
+    );
+    mock.restoreAll();
+  }
 });
