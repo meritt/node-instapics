@@ -83,14 +83,14 @@ async function exchangeForLongLived(shortLivedToken) {
   return body;
 }
 
-const callbackPath = new URL(REDIRECT_URI).pathname;
-const port = Number(new URL(REDIRECT_URI).port || 3000);
+const { pathname: callbackPath, port: redirectPort } = new URL(REDIRECT_URI);
+const port = Number(redirectPort || 3000);
 
 const server = createServer(loadTls(), async (req, res) => {
   const url = new URL(req.url, REDIRECT_URI);
 
   if (url.pathname !== callbackPath) {
-    res.writeHead(404).end('Not found');
+    res.writeHead(404, { 'content-type': 'text/plain' }).end('Not found');
     return;
   }
 
@@ -111,7 +111,7 @@ const server = createServer(loadTls(), async (req, res) => {
 
     expectedState = null;
 
-    const shortLived = await exchangeCodeForShortLived(code.replace(/#_$/, ''));
+    const shortLived = await exchangeCodeForShortLived(code);
     const longLived = await exchangeForLongLived(shortLived);
 
     console.log('\nLong-lived access token:\n', longLived.access_token);
@@ -122,7 +122,9 @@ const server = createServer(loadTls(), async (req, res) => {
       .end('Token obtained. Check your terminal. You can close this tab.');
   } catch (err) {
     console.error(err);
-    res.writeHead(400).end(String(err.message ?? err));
+    res
+      .writeHead(400, { 'content-type': 'text/plain' })
+      .end(String(err.message ?? err));
   } finally {
     server.close();
   }
