@@ -352,3 +352,44 @@ test('media() rejects a page whose data is not a list or holds non-objects', asy
     mock.restoreAll();
   }
 });
+
+test('an already aborted signal stops media() before any request', async () => {
+  const fetch = stubFetch({ body: { data: [], paging: {} } });
+  const ig = new Instapics({ token: 'T' });
+  const reason = new Error('cancelled');
+  await assert.rejects(
+    () => ig.media(5, { signal: AbortSignal.abort(reason) }),
+    (e) => e === reason
+  );
+  assert.equal(fetch.calls.length, 0);
+});
+
+test('aborting between pages stops pagination with the abort reason', async () => {
+  const controller = new AbortController();
+  const reason = new Error('enough');
+  const fetch = stubFetch((url, i) => {
+    controller.abort(reason);
+    return endlessVideos(url, i);
+  });
+  const ig = new Instapics({ token: 'T' });
+  await assert.rejects(
+    () => ig.videos(10, { signal: controller.signal }),
+    (e) => e === reason
+  );
+  assert.equal(fetch.calls.length, 1);
+});
+
+test('every method forwards the signal to fetch', async () => {
+  const fetch = stubFetch({
+    body: { ...img('1'), access_token: 'N', expires_in: 1 }
+  });
+  const ig = new Instapics({ token: 'T', timeout: 0 });
+  const controller = new AbortController();
+  const { signal } = controller;
+  await ig.profile({ signal });
+  await ig.item('1', { signal });
+  await ig.refresh({ signal });
+  controller.abort();
+  assert.ok(fetch.calls.every((c) => c.init.signal.aborted));
+  assert.equal(fetch.calls.length, 3);
+});

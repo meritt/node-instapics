@@ -27,6 +27,13 @@ async function nonJsonFetch() {
   return new Response('<html>oops</html>');
 }
 
+function hangingFetch(_url, init) {
+  init.signal.throwIfAborted();
+  return new Promise((_resolve, reject) => {
+    init.signal.addEventListener('abort', () => reject(init.signal.reason));
+  });
+}
+
 async function leakyFetch(url) {
   throw new Error(`connect to ${url} failed`);
 }
@@ -206,4 +213,53 @@ test('request rejects JSON that is not an object', async () => {
     );
     mock.restoreAll();
   }
+});
+
+test('request rethrows the caller abort reason, not an API error', async () => {
+  mock.method(globalThis, 'fetch', hangingFetch);
+  const controller = new AbortController();
+  const reason = new Error('stop');
+  const pending = request(
+    DEFAULT_BASE_URL,
+    'me',
+    {},
+    { signal: controller.signal }
+  );
+  controller.abort(reason);
+  await assert.rejects(pending, (err) => err === reason);
+});
+
+test('request honours an already aborted signal', async () => {
+  const fetch = mock.method(globalThis, 'fetch', hangingFetch);
+  const reason = new Error('already');
+  await assert.rejects(
+    () =>
+      request(
+        DEFAULT_BASE_URL,
+        'me',
+        {},
+        { signal: AbortSignal.abort(reason) }
+      ),
+    (err) => err === reason
+  );
+  assert.equal(fetch.mock.callCount(), 0);
+});
+
+test('request still reports its own timeout as InstagramApiError with a signal', async () => {
+  mock.method(globalThis, 'fetch', hangingFetch);
+  const controller = new AbortController();
+  await assert.rejects(
+    () =>
+      request(
+        DEFAULT_BASE_URL,
+        'me',
+        {},
+        { timeout: 20, signal: controller.signal }
+      ),
+    (err) => {
+      assert.ok(err instanceof InstagramApiError);
+      assert.match(err.message, /timed out after 20ms/);
+      return true;
+    }
+  );
 });

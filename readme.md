@@ -98,23 +98,31 @@ Throws a `TypeError` if no string token resolves from `token` or `env`, or if `b
 
 ### Methods
 
-| Method               | Returns                                      |
-| -------------------- | -------------------------------------------- |
-| `profile()`          | `{ id, username, account, posts }`           |
-| `media(count = 25)`  | latest media of any type                     |
-| `photos(count = 25)` | latest photos (images and albums)            |
-| `videos(count = 25)` | latest feed videos (excludes Reels)          |
-| `reels(count = 25)`  | latest Reels                                 |
-| `item(id)`           | a single media object by id                  |
-| `refresh()`          | `{ token, expires }`, and updates the client |
+| Method                     | Returns                                      |
+| -------------------------- | -------------------------------------------- |
+| `profile(opts)`            | `{ id, username, account, posts }`           |
+| `media(count = 25, opts)`  | latest media of any type                     |
+| `photos(count = 25, opts)` | latest photos (images and albums)            |
+| `videos(count = 25, opts)` | latest feed videos (excludes Reels)          |
+| `reels(count = 25, opts)`  | latest Reels                                 |
+| `item(id, opts)`           | a single media object by id                  |
+| `refresh(opts)`            | `{ token, expires }`, and updates the client |
 
 `count` is an integer from `0` to `1000`. `photos`, `videos`, and `reels` scan up to the 2500 most recent posts to fill it, so a rare type may return fewer.
 
 `id` is a string of digits, as the API returns it. A number is accepted only while it is a safe integer: Instagram ids are usually larger, and a rounded id would fetch someone else's post.
 
+`opts` is an optional `{ signal }`. An `AbortSignal` cancels the call, including the pagination in progress:
+
+```js
+const media = await ig.media(1000, { signal: AbortSignal.timeout(10_000) });
+```
+
 ### Errors
 
 A failed request throws `InstagramApiError`, whether from an HTTP error, a network failure, the client's own `timeout`, a response over 5 MB, or a response of the wrong shape. It carries `message`, `status`, `code`, `type`, and `fbtraceId`.
+
+Cancelling through your `signal` is not a failure: the call rejects with `signal.reason` as is.
 
 ## Rate limits
 
