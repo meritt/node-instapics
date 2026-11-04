@@ -19,13 +19,7 @@ async function timingOutFetch() {
 }
 
 async function nonJsonFetch() {
-  return {
-    ok: true,
-    status: 200,
-    async json() {
-      throw new SyntaxError('Unexpected token < in JSON');
-    }
-  };
+  return new Response('<html>oops</html>');
 }
 
 async function leakyFetch(url) {
@@ -33,7 +27,7 @@ async function leakyFetch(url) {
 }
 
 test('buildUrl joins base + path and appends params, skipping nullish', () => {
-  const url = buildUrl('https://graph.instagram.com/', '/me/media', {
+  const url = buildUrl('https://graph.instagram.com/', 'me/media', {
     fields: 'id,caption',
     limit: 25,
     after: undefined
@@ -48,7 +42,7 @@ test('buildUrl joins base + path and appends params, skipping nullish', () => {
 });
 
 test('request returns parsed JSON on success and forwards params', async () => {
-  const fetch = stubFetch({ status: 200, body: { data: [{ id: '1' }] } });
+  const fetch = stubFetch({ body: { data: [{ id: '1' }] } });
   const body = await request(DEFAULT_BASE_URL, 'me/media', {
     access_token: 't'
   });

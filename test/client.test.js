@@ -32,21 +32,11 @@ function vid(id) {
 }
 
 function reel(id) {
-  return {
-    id,
-    media_type: 'VIDEO',
-    media_product_type: 'REELS',
-    media_url: `https://vid/${id}.mp4`,
-    thumbnail_url: `https://t/${id}.jpg`,
-    permalink: `https://p/${id}`,
-    caption: null,
-    timestamp: '2026-01-01T00:00:00+0000'
-  };
+  return { ...vid(id), media_product_type: 'REELS' };
 }
 
 function endlessVideos(_url, i) {
   return {
-    status: 200,
     body: {
       data: [vid(String(i))],
       paging: { next: 'http://n', cursors: { after: `C${i}` } }
@@ -59,7 +49,7 @@ test('constructor requires a token', () => {
 });
 
 test('reads token from env IG_TOKEN when not passed', async () => {
-  const fetch = stubFetch({ status: 200, body: { username: 'me' } });
+  const fetch = stubFetch({ body: { username: 'me' } });
   const ig = new Instapics({ env: { IG_TOKEN: 'ENVTOK' } });
   await ig.profile();
   assert.equal(fetch.calls[0].url.searchParams.get('access_token'), 'ENVTOK');
@@ -67,7 +57,6 @@ test('reads token from env IG_TOKEN when not passed', async () => {
 
 test('profile() returns the normalized profile from /me', async () => {
   const fetch = stubFetch({
-    status: 200,
     body: { id: '1', username: 'me', account_type: 'BUSINESS', media_count: 42 }
   });
   const ig = new Instapics({ token: 'T' });
@@ -83,7 +72,6 @@ test('profile() returns the normalized profile from /me', async () => {
 
 test('media(n) returns n latest of any type, normalized', async () => {
   stubFetch({
-    status: 200,
     body: { data: [img('1'), vid('2'), img('3'), vid('4')], paging: {} }
   });
   const ig = new Instapics({ token: 'T' });
@@ -97,7 +85,7 @@ test('media(n) returns n latest of any type, normalized', async () => {
 
 test('media() defaults to 25', async () => {
   const data = Array.from({ length: 30 }, (_, k) => img(String(k)));
-  stubFetch({ status: 200, body: { data, paging: {} } });
+  stubFetch({ body: { data, paging: {} } });
   const ig = new Instapics({ token: 'T' });
   const items = await ig.media();
   assert.equal(items.length, 25);
@@ -106,19 +94,16 @@ test('media() defaults to 25', async () => {
 test('photos(n) collects only photos across pages (pagination hidden)', async () => {
   const pages = [
     {
-      status: 200,
       body: {
         data: [img('1'), vid('2'), img('3')],
         paging: { cursors: { after: 'A' }, next: 'http://n/1' }
       }
     },
     {
-      status: 200,
       body: { data: [vid('4'), img('5')], paging: {} } // no next → end
     }
   ];
-  let i = 0;
-  const fetch = stubFetch(() => pages[i++]);
+  const fetch = stubFetch((_url, i) => pages[i]);
   const ig = new Instapics({ token: 'T' });
   const photos = await ig.photos(3);
   assert.deepEqual(
@@ -131,7 +116,6 @@ test('photos(n) collects only photos across pages (pagination hidden)', async ()
 
 test('videos(n) collects feed videos and excludes reels', async () => {
   stubFetch({
-    status: 200,
     body: { data: [img('1'), vid('2'), reel('3'), vid('4')], paging: {} }
   });
   const ig = new Instapics({ token: 'T' });
@@ -145,7 +129,6 @@ test('videos(n) collects feed videos and excludes reels', async () => {
 
 test('reels(n) collects only reels', async () => {
   stubFetch({
-    status: 200,
     body: { data: [img('1'), vid('2'), reel('3'), reel('5')], paging: {} }
   });
   const ig = new Instapics({ token: 'T' });
@@ -169,7 +152,6 @@ test('albums count as photos', async () => {
     }
   };
   stubFetch({
-    status: 200,
     body: { data: [album, vid('2')], paging: {} }
   });
   const ig = new Instapics({ token: 'T' });
@@ -190,7 +172,7 @@ test('filtered collectors stop at the page-scan cap (no infinite scan)', async (
 });
 
 test('item(id) returns a single normalized media object', async () => {
-  const fetch = stubFetch({ status: 200, body: img('42') });
+  const fetch = stubFetch({ body: img('42') });
   const ig = new Instapics({ token: 'T' });
   const item = await ig.item('42');
   assert.equal(item.id, '42');
@@ -199,7 +181,7 @@ test('item(id) returns a single normalized media object', async () => {
 });
 
 test('item() rejects a missing or non-numeric id', async () => {
-  stubFetch({ status: 200, body: {} });
+  stubFetch({ body: {} });
   const ig = new Instapics({ token: 'T' });
   await assert.rejects(() => ig.item(), TypeError);
   await assert.rejects(() => ig.item('../me'), TypeError);
@@ -207,7 +189,7 @@ test('item() rejects a missing or non-numeric id', async () => {
 });
 
 test('count must be an integer within [0, 1000]', async () => {
-  stubFetch({ status: 200, body: { data: [], paging: {} } });
+  stubFetch({ body: { data: [], paging: {} } });
   const ig = new Instapics({ token: 'T' });
   const empty = await ig.media(0);
   assert.equal(empty.length, 0);
@@ -233,18 +215,12 @@ test('constructor validates timeout', () => {
 });
 
 test('refresh() returns { token, expires } and updates the client token', async () => {
-  let call = 0;
-  const fetch = stubFetch(() => {
-    call += 1;
-    if (call === 1) {
-      return {
-        status: 200,
-        body: { access_token: 'NEW', expires_in: 5184000 }
-      };
-    }
-    return { status: 200, body: { username: 'me' } };
-  });
-  const ig = new Instapics({ token: 'OLD', fetch });
+  const fetch = stubFetch((_url, i) =>
+    i === 0
+      ? { body: { access_token: 'NEW', expires_in: 5184000 } }
+      : { body: { username: 'me' } }
+  );
+  const ig = new Instapics({ token: 'OLD' });
 
   const result = await ig.refresh();
   assert.equal(result.token, 'NEW');
@@ -264,8 +240,8 @@ test('refresh() returns { token, expires } and updates the client token', async 
 });
 
 test('refresh() rejects an invalid token response and keeps the old token', async () => {
-  const fetch = stubFetch({ status: 200, body: { token_type: 'bearer' } });
-  const ig = new Instapics({ token: 'OLD', fetch });
+  const fetch = stubFetch({ body: { token_type: 'bearer' } });
+  const ig = new Instapics({ token: 'OLD' });
   await assert.rejects(
     () => ig.refresh(),
     (e) => e instanceof InstagramApiError
