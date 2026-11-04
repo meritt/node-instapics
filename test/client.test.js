@@ -341,6 +341,38 @@ test('constructor rejects a non-string token', () => {
   assert.throws(() => new Instapics({ env: { IG_TOKEN: {} } }), TypeError);
 });
 
+test('media(n) asks only for n items when n is below the page size', async () => {
+  const fetch = stubFetch({
+    body: { data: [img('1')], paging: {} }
+  });
+  const ig = new Instapics({ token: 'T' });
+  await ig.media(5);
+  await ig.media(100);
+  await ig.photos(5);
+  assert.deepEqual(
+    fetch.calls.map((c) => c.url.searchParams.get('limit')),
+    ['5', '25', '25']
+  );
+});
+
+test('media(n) sizes the last page to the items still missing', async () => {
+  const fetch = stubFetch((_url, i) => ({
+    body: {
+      data: Array.from({ length: i === 0 ? 25 : 1 }, (_, k) =>
+        img(`${i}-${k}`)
+      ),
+      paging: { next: 'http://n', cursors: { after: `C${i}` } }
+    }
+  }));
+  const ig = new Instapics({ token: 'T' });
+  const items = await ig.media(26);
+  assert.equal(items.length, 26);
+  assert.deepEqual(
+    fetch.calls.map((c) => c.url.searchParams.get('limit')),
+    ['25', '1']
+  );
+});
+
 test('media() rejects a page whose data is not a list or holds non-objects', async () => {
   for (const data of [{}, [null], [{ media_type: 'IMAGE' }]]) {
     stubFetch({ body: { data, paging: {} } });
