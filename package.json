@@ -35,11 +35,18 @@
     "coverage": "mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-lines=97 --test-coverage-branches=85 --test-coverage-functions=93 --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info test/*.js"
   },
   "devDependencies": {
-    "oxfmt": "^0.54.0",
-    "oxlint": "^1.69.0"
+    "oxfmt": "^0.76.0",
+    "oxlint": "^1.91.0"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^26.13.0",
+      "onFail": "download"
+    }
   },
   "engines": {
-    "node": ">=26.3"
+    "node": ">=26.13"
   },
-  "packageManager": "pnpm@11.6.0"
+  "packageManager": "pnpm@12.16.1"
 }

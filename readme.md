@@ -9,7 +9,7 @@ Fetch your own Instagram photos, videos, and Reels normalized to a flat shape. `
 
 ## Requirements
 
-- Node.js ≥ 26.3
+- Node.js ≥ 26.13
 - A **professional** Instagram account and a Meta app with **Instagram Login**
 
 ## Installation

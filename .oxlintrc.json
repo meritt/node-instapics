@@ -5,10 +5,6 @@
     "node": true,
     "es2026": true
   },
-  "globals": {
-    "Temporal": "readonly"
-  },
-  "ignorePatterns": ["node_modules/", "coverage/"],
   "categories": {
     "correctness": "error",
     "suspicious": "error",
@@ -22,7 +18,6 @@
     "max-nested-callbacks": "error",
     "no-await-in-loop": "off",
     "no-constructor-return": "error",
-    "no-duplicate-imports": "error",
     "no-else-return": "error",
     "no-implicit-coercion": "error",
     "no-lonely-if": "error",
@@ -84,13 +79,11 @@
     "import/no-duplicates": "error",
     "import/no-mutable-exports": "error",
     "import/no-self-import": "error",
-    "promise/always-return": "off",
     "promise/no-multiple-resolved": "error",
     "promise/no-nesting": "error",
     "promise/no-return-wrap": "error",
     "promise/param-names": "error",
     "promise/prefer-await-to-callbacks": "error",
-    "promise/prefer-await-to-then": "error",
-    "no-underscore-dangle": "off"
+    "promise/prefer-await-to-then": "error"
   }
 }
