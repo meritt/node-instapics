@@ -65,7 +65,7 @@ Every item carries a `thumbnail` image url: the full-size image for photos and a
 //   items           — the rest, as [{ type, url }, ...]
 ```
 
-Missing fields are `null`.
+Missing fields are `null`. So are `url`, `thumbnail`, and `permalink` values that are not `https:` URLs, so a broken or hostile response cannot hand your page a `javascript:` link.
 
 ## Tokens
 

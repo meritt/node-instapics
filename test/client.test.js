@@ -163,6 +163,16 @@ test('albums count as photos', async () => {
   assert.equal(photos[0].type, 'album');
 });
 
+test('an unknown media type is kept by media() but not counted as a photo', async () => {
+  stubFetch({
+    body: { data: [{ id: '7', media_type: 'STORY' }], paging: {} }
+  });
+  const ig = new Instapics({ token: 'T' });
+  assert.deepEqual(await ig.photos(5), []);
+  const [item] = await ig.media(5);
+  assert.equal(item.id, '7');
+});
+
 test('filtered collectors stop at the page-scan cap (no infinite scan)', async () => {
   const fetch = stubFetch(endlessVideos);
   const ig = new Instapics({ token: 'T' });
